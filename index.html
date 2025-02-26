@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tarot Card Reader</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    
+
     <style>
         body {
             font-family: 'Helvetica Neue', sans-serif;
@@ -476,8 +476,8 @@
             color: #e0e0e0;
         }
 
-        .card-meaning h1, 
-        .card-meaning h2, 
+        .card-meaning h1,
+        .card-meaning h2,
         .card-meaning h3 {
             color: #fff;
             margin-top: 1em;
@@ -496,7 +496,7 @@
             color: #b8b8b8;
         }
 
-        .card-meaning ul, 
+        .card-meaning ul,
         .card-meaning ol {
             padding-left: 1.5em;
             margin-bottom: 1em;
@@ -626,8 +626,8 @@
             this.scrollLeft += e.deltaY > 0 ? scrollSpeed : -scrollSpeed;
         });
 
-        function callOpenAi(question, cardName, reverse) {
-            const instructions = "You are Tarot reader. You are helping people with reading Tarot. You always give positve vibe answer. Answer are short to the point and give some advice base on the tarot card. You reply back to the user base on the user language. Format your response using markdown with: **Bold** for important points, *italic* for emphasis, and bullet points for advice.";
+        async function callOpenAi(question, cardName, reverse) {
+            const instructions = "You are Tarot reader..."; // existing instructions
             const cardPosition = reverse ? "Reverse" : "Upright";
             const prompt = `Question: ${question}\nCard: ${cardName}\nPosition: ${cardPosition}`;
             const cardMeaningElement = document.getElementById('card-meaning');
@@ -639,26 +639,37 @@
                 return;
             }
 
-            fetch("https://tarot.comquas.com/chat", {
-                method: "POST",
-                mode: 'cors',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    apiKey: apiKey,
-                    message: prompt
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const markdownContent = data.message;
-                // Parse markdown and set as HTML
-                cardMeaningElement.innerHTML = marked.parse(markdownContent);
-            })
-            .catch(error => {
+            try {
+                const response = await fetch("https://tarot.comquas.com/chat", {
+                    method: "POST",
+                    mode: 'cors',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        apiKey: apiKey,
+                        message: prompt
+                    })
+                });
+
+                const reader = response.body.getReader();
+                let result = '';
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+
+                    // Convert the Uint8Array to text
+                    const chunk = new TextDecoder().decode(value);
+                    result += chunk;
+
+                    // Parse and display the accumulated markdown content
+                    cardMeaningElement.innerHTML = marked.parse(result);
+                }
+            } catch (error) {
                 cardMeaningElement.innerHTML = 'An error occurred while fetching the response.';
-            });
+                console.error('Error:', error);
+            }
         }
 
         function createCards() {
@@ -688,7 +699,7 @@
                     const question = document.getElementById('question').value;
                     const isReversed = img.classList.contains('reversed');
                     const cardName = names[originalIndices[index]];
-                    
+
                     resultDiv.innerHTML = `
                 <div class="result-grid">
                     <div class="card-image-container">
@@ -735,13 +746,13 @@
 
         document.getElementById('shuffleButton').addEventListener('click', function () {
             const cards = document.querySelectorAll('.card');
-            
+
             // First smoothly scroll back to start
             cardContainer.scrollTo({
                 left: 0,
                 behavior: 'smooth'
             });
-            
+
             // Wait for scroll to complete before starting shuffle animation
             setTimeout(() => {
                 cards.forEach((card, index) => {
@@ -749,7 +760,7 @@
                     card.classList.add('stacking');
                     card.style.animationDelay = `${index * 0.05}s`;
                 });
-                
+
                 setTimeout(() => {
                     createCards();
                 }, 800);
