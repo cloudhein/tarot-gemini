@@ -257,12 +257,20 @@
             scroll-behavior: smooth;
             position: relative;
             /* Added for swipe hint positioning */
+            touch-action: pan-x; /* Only allow horizontal touch actions */
+            overflow-y: hidden; /* Prevent vertical scrolling */
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: none; /* Prevent bounce effect on vertical scroll */
+}
         }
 
         .card {
             width: 80px;
             height: 120px;
             margin-left: -50px;
+            touch-action: pan-x; /* Only allow horizontal touch actions on cards */
+            user-select: none; /* Prevent text selection during touch */
+            -webkit-user-select: none;
         }
 
         /* Update media queries for mobile */
