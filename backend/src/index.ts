@@ -13,7 +13,6 @@ app.get('/', (c) => {
 
 app.post('/chat', async (c) => {
   const body = await c.req.json();
-  console.log(body);
   const apiKey: string = body['apiKey'] as string;
   const message = body['message'] as string;
   const instruction = "";
