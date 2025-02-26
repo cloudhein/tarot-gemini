@@ -49,7 +49,6 @@ app.post('/chat', async (c) => {
           stream.write(text);
         }
       }
-      await stream.writeln('\n[Done]');
     });
 
 
