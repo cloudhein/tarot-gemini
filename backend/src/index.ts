@@ -15,7 +15,7 @@ app.post('/chat', async (c) => {
   const body = await c.req.json();
   const apiKey: string = body['apiKey'] as string;
   const message = body['message'] as string;
-  const instruction = "";
+  const instruction = "You are professional tarot card reader. Be honest with your answer. Reply back to the user base on the user language.";
   if (apiKey == null || message == null) {
     return c.json({ 'message': 'apiKey and message are required' })
   }

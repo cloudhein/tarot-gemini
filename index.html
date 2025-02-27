@@ -635,7 +635,7 @@
         });
 
         async function callOpenAi(question, cardName, reverse) {
-            const instructions = "You are Tarot reader..."; // existing instructions
+            
             const cardPosition = reverse ? "Reverse" : "Upright";
             const prompt = `Question: ${question}\nCard: ${cardName}\nPosition: ${cardPosition}`;
             const cardMeaningElement = document.getElementById('card-meaning');
