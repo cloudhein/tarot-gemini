@@ -13,24 +13,51 @@ app.get('/', (c) => {
 
 app.post('/chat', async (c) => {
   const body = await c.req.json();
-  const apiKey: string = body['apiKey'] as string;
-  const message = body['message'] as string;
-  const instruction = "You are professional tarot card reader. Be honest with your answer. Reply back to the user base on the user language.";
-  if (apiKey == null || message == null) {
-    return c.json({ 'message': 'apiKey and message are required' })
+
+  if (!body.hasOwnProperty('card') || !body.hasOwnProperty('question') || !body.hasOwnProperty('reverse')) {
+    return c.json({ 'message': 'data are missing' }, 400);
   }
-  if (apiKey.length < 39 || apiKey.length > 42) {
+
+  var apiKey: string = "";
+  var baseURL = "https://generativelanguage.googleapis.com/v1beta/openai/";
+  var model = "gemini-2.0-pro-exp-02-05";
+  var withAPIKey = true;
+
+  if (body.hasOwnProperty('apiKey') && body['apiKey'] != "") {
+    apiKey = body['apiKey'] as string;
+  }
+  else {
+    apiKey = process.env.API_KEY as string;
+    baseURL = process.env.API_URL as string;
+    model = process.env.MODEL as string;
+    withAPIKey = false;
+  }
+  
+  if(apiKey == "" || baseURL == "" || model == ""){
+    return c.json({ 'message': 'missing environment variables' });
+  }
+
+  if (withAPIKey == true  && (apiKey.length < 39 || apiKey.length > 42)) {
     return c.json({ 'message': 'invalid api key' });
   }
 
+  const question = body['question'] as string;
+  const card = body['card'] as string;
+  const reverse = body['reverse'] as boolean;
+  const cardPosition = reverse ? "Reversed" : "Upright";
+
+  const message = `Question: ${question}\nCard: ${card}\nPosition: ${cardPosition}`;
+
+  const instruction = "You are professional tarot card reader. Be honest with your answer. Direct answer and you answer is like that. Reply back to the user base on the user language.";
+  
   try {
     const openai = new OpenAI({
       "apiKey": apiKey,
-      "baseURL": "https://generativelanguage.googleapis.com/v1beta/openai/"
+      "baseURL": baseURL
     });
 
     const chatStream = await openai.chat.completions.create({
-      model: "gemini-2.0-flash",
+      model: model,
       stream: true,
       messages: [
         { role: "system", content: instruction },

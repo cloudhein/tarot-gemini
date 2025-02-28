@@ -528,13 +528,13 @@
         <h1>🔮 Tarot Reading</h1>
     </div>
 
-    <div class="api-container">
+    <!-- <div class="api-container">
         <label for="api-key" class="api-label">Gemini API Key:</label>
         <div class="api-input-wrapper">
             <input type="text" id="api-key" placeholder="Enter your Gemini API key...">
             <a href="https://aistudio.google.com/apikey" target="_blank" class="api-link">Get API Key</a>
         </div>
-    </div>
+    </div> -->
 
     <div class="question-container">
         <label for="question" class="question-label">What question seeks answers in the cards?</label>
@@ -634,29 +634,28 @@
             this.scrollLeft += e.deltaY > 0 ? scrollSpeed : -scrollSpeed;
         });
 
-        async function callOpenAi(question, cardName, reverse) {
+        async function callOpenAi(question, card, reverse) {
             
-            const cardPosition = reverse ? "Reverse" : "Upright";
-            const prompt = `Question: ${question}\nCard: ${cardName}\nPosition: ${cardPosition}`;
             const cardMeaningElement = document.getElementById('card-meaning');
             cardMeaningElement.innerHTML = 'Loading...';
 
-            const apiKey = document.getElementById('api-key').value;
-            if (!apiKey) {
-                alert('Please enter your Gemini API key.');
-                return;
-            }
-
+            // var apiKey = document.getElementById('api-key').value;
+            // if (!apiKey) {
+            //     apiKey = "";
+            //     return;
+            // }
             try {
-                const response = await fetch("https://tarot.comquas.com/chat", {
+                const response = await fetch("http://localhost:5674/chat", {
                     method: "POST",
                     mode: 'cors',
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        apiKey: apiKey,
-                        message: prompt
+                        apiKey: "",
+                        card: card,
+                        question: question,
+                        reverse: reverse
                     })
                 });
 
