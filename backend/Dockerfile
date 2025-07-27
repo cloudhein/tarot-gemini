@@ -17,4 +17,3 @@ COPY --from=builder /app /app/
 EXPOSE 5674
 
 CMD ["bun", "run", "--hot", "src/index.ts"]
-
